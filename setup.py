@@ -16,8 +16,7 @@ setup(
     url="https://github.com/sebhaan/TabPFGen",
     package_dir={"": "src"},
     packages=find_packages(where="src"),
-    python_requires=">=3.11",
-    install_requires=read_requirements('requirements.txt'),
+    install_requires=open("requirements.txt").read().splitlines(),
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
