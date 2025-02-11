@@ -19,20 +19,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "numpy>=1.21.0",
-    "torch>=1.9.0",
-    "scikit-learn>=1.0.0",
-    "matplotlib>=3.4.0",
-    "scipy>=1.7.0",
-    "tabpfn>=0.1.0",
-]
-
-
-docs = [
-    "sphinx>=4.5.0",
-    "sphinx-rtd-theme>=1.0.0",
-]
+dependencies = {file = ["requirements.txt"]}
 
 
 [tool.setuptools]
