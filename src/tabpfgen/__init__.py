@@ -1,4 +1,4 @@
-from .generator import TabPFGen
+from .tabpfgen import TabPFGen
 from .visuals import (
     visualize_classification_results,
     visualize_regression_results
