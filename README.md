@@ -23,7 +23,7 @@ pip install tabpfgen
 
 ```python
 from tabpfgen import TabPFGen
-from visuals import visualize_classification_results
+from tabpfgen.visuals import visualize_classification_results
 from sklearn.datasets import load_breast_cancer
 
 # Load data
@@ -50,7 +50,7 @@ visualize_classification_results(
 
 ```python
 from tabpfgen import TabPFGen
-from visuals import visualize_regression_results
+from tabpfgen.visuals import visualize_regression_results
 from sklearn.datasets import load_diabetes
 
 # Load regression dataset
@@ -109,6 +109,10 @@ The package includes comprehensive visualization tools:
 ### Regression Generation
 - `n_samples`: Number of synthetic samples to generate
 - `use_quantiles`: Whether to use quantile-based sampling (default: True)
+
+### Tests
+
+python -m unittest tests/test_tabpfgen.py
 
 ## How It Works
 
