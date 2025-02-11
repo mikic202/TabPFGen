@@ -1,0 +1,39 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm>=6.2"]
+build-backend = "setuptools.build_meta"
+
+# setup.py
+from setuptools import setup
+
+setup()
+
+# setup.cfg
+[metadata]
+name = TabPFGen
+version = 0.1.0
+author = Sebastian Haan
+description = Synthetic tabular data generation using using energy-based modeling and TabPFN
+long_description = file: README.md
+long_description_content_type = text/markdown
+url = https://github.com/sebhaan/TabPFGen
+classifiers =
+    Programming Language :: Python :: 3
+    License :: OSI Approved :: Apache-2.0 License
+    Operating System :: OS Independent
+
+[options]
+package_dir =
+    = src
+packages = find:
+python_requires = >=3.11
+install_requires =
+    numpy
+    torch
+    scikit-learn
+    matplotlib
+    scipy
+    tabpfn
+
+[options.packages.find]
+where = src
