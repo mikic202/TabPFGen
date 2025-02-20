@@ -268,10 +268,10 @@ def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names
     plt.show()
 
     # Third plot: Additional statistical analysis
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(10, 5))
 
     # Residuals Distribution
-    plt.subplot(1, 3, 1)
+    plt.subplot(1, 2, 1)
     residuals_orig = y_orig - np.mean(y_orig)
     residuals_synth = y_synth - np.mean(y_synth)
     
@@ -284,11 +284,11 @@ def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names
     plt.grid(True, alpha=0.3)
 
     # Target Value Range Coverage
-    plt.subplot(1, 3, 2)
+    plt.subplot(1, 2, 2)
     percentiles = np.linspace(0, 100, 20)
     orig_percentiles = np.percentile(y_orig, percentiles)
     synth_percentiles = np.percentile(y_synth, percentiles)
-    
+
     plt.plot(percentiles, orig_percentiles, 'b-', label='Original')
     plt.plot(percentiles, synth_percentiles, 'r--', label='Synthetic')
     plt.title('Target Value Range Coverage')
@@ -297,15 +297,24 @@ def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names
     plt.legend()
     plt.grid(True, alpha=0.3)
 
+    # Fourth plot: Additional statistical analysis
+    plt.figure(figsize=(10, 5))
+
     # Feature Correlations Comparison
-    plt.subplot(1, 3, 3)
     orig_corr = np.corrcoef(X_orig.T)
     synth_corr = np.corrcoef(X_synth.T)
-    corr_diff = np.abs(orig_corr - synth_corr)
-    
-    plt.imshow(corr_diff, cmap='coolwarm', aspect='auto')
-    plt.colorbar(label='Correlation Difference')
-    plt.title('Feature Correlation Differences')
+    #corr_diff = np.abs(orig_corr - synth_corr)
+    plt.subplot(1, 2, 1)
+    plt.imshow(orig_corr, cmap='coolwarm', aspect='auto')
+    plt.colorbar(label='Correlation Value')
+    plt.title('Feature Correlation Original')
+    plt.xlabel('Feature Index')
+    plt.ylabel('Feature Index')
+
+    plt.subplot(1, 2, 2)
+    plt.imshow(synth_corr, cmap='coolwarm', aspect='auto')
+    plt.colorbar(label='Correlation Value')
+    plt.title('Feature Correlation Synthetic')
     plt.xlabel('Feature Index')
     plt.ylabel('Feature Index')
 
