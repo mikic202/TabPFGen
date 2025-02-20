@@ -106,7 +106,7 @@ The package includes comprehensive visualization tools:
 - Scatter plots of important features
 - t-SNE visualization with target value mapping
 - Residuals analysis
-- Feature correlation difference matrices
+- Feature correlation matrices
 
 ## Parameters
 
@@ -114,7 +114,7 @@ The package includes comprehensive visualization tools:
 - `n_sgld_steps`: Number of SGLD iterations (default: 1000)
 - `sgld_step_size`: Step size for SGLD updates (default: 0.01)
 - `sgld_noise_scale`: Scale of noise in SGLD (default: 0.01)
-- `device`: Computing device ('cpu' or 'cuda', default: 'cpu')
+- `device`: Computing device ('cpu' or 'cuda', default: 'auto')
 
 ### Classification Generation
 - `n_samples`: Number of synthetic samples to generate
