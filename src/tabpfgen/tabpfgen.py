@@ -33,7 +33,6 @@ class TabPFGen:
         self.sgld_noise_scale = sgld_noise_scale
         self.scaler = StandardScaler()
         self.device = self._infer_device(device)
-        self.tabpfn = TabPFNClassifier(device=self.device)
 
 
     def _infer_device(self, device: str | torch.device | None) -> torch.device:
@@ -180,9 +179,11 @@ class TabPFGen:
         x_synth_np = x_synth.detach().cpu().numpy()
         x_train_np = x_train.cpu().numpy()
         y_train_np = y_train.cpu().numpy()
-        
-        self.tabpfn.fit(x_train_np, y_train_np)
-        probs = self.tabpfn.predict_proba(x_synth_np)
+
+        # Fit TabPFN classifier
+        clf = TabPFNClassifier(device=self.device)
+        clf.fit(x_train_np, y_train_np)
+        probs = clf.predict_proba(x_synth_np)
         
         # Refine labels based on TabPFN predictions
         y_synth = torch.tensor(probs.argmax(axis=1), device=self.device)
