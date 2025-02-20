@@ -138,7 +138,7 @@ class TabPFGen:
         
         Returns:
             Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and labels  
-        """t
+        """
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
         
