@@ -125,19 +125,19 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
     plt.show()
     
     # Additional Plot: Feature Correlations
-    plt.figure(figsize=(15, 5))
+    plt.figure(figsize=(12, 6))
     
     # Original data correlations
     plt.subplot(1, 2, 1)
     orig_corr = np.corrcoef(X_orig.T)
-    plt.imshow(orig_corr, cmap='coolwarm', aspect='auto')
+    plt.imshow(orig_corr, cmap='coolwarm', aspect='equal')
     plt.colorbar()
     plt.title('Original Feature Correlations', fontsize=12, pad=20)
     
     # Synthetic data correlations
     plt.subplot(1, 2, 2)
     synth_corr = np.corrcoef(X_synth.T)
-    plt.imshow(synth_corr, cmap='coolwarm', aspect='auto')
+    plt.imshow(synth_corr, cmap='coolwarm', aspect='equal')
     plt.colorbar()
     plt.title('Synthetic Feature Correlations', fontsize=12, pad=20)
     
@@ -297,24 +297,27 @@ def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names
     plt.legend()
     plt.grid(True, alpha=0.3)
 
+    plt.tight_layout()
+    plt.show()
+
     # Fourth plot: Additional statistical analysis
-    plt.figure(figsize=(10, 5))
+    plt.figure(figsize=(12, 6))
 
     # Feature Correlations Comparison
     orig_corr = np.corrcoef(X_orig.T)
     synth_corr = np.corrcoef(X_synth.T)
     #corr_diff = np.abs(orig_corr - synth_corr)
     plt.subplot(1, 2, 1)
-    plt.imshow(orig_corr, cmap='coolwarm', aspect='auto')
+    plt.imshow(orig_corr, cmap='coolwarm', aspect='equal')
     plt.colorbar(label='Correlation Value')
-    plt.title('Feature Correlation Original')
+    plt.title('Original Feature Correlations', fontsize=12, pad=20)
     plt.xlabel('Feature Index')
     plt.ylabel('Feature Index')
 
     plt.subplot(1, 2, 2)
-    plt.imshow(synth_corr, cmap='coolwarm', aspect='auto')
+    plt.imshow(synth_corr, cmap='coolwarm', aspect='equal')
     plt.colorbar(label='Correlation Value')
-    plt.title('Feature Correlation Synthetic')
+    plt.title('Synthetic Feature Correlations', fontsize=12, pad=20)
     plt.xlabel('Feature Index')
     plt.ylabel('Feature Index')
 
