@@ -13,30 +13,48 @@ class TabPFGen:
         n_sgld_steps: int = 1000,
         sgld_step_size: float = 0.01,
         sgld_noise_scale: float = 0.01,
-        device: str = "cpu"
+        device: str = "auto"
     ):
         """
         Initialize TabPFGen with SGLD parameters.
 
-        Parameters
-        ----------
-        n_sgld_steps: int
-            Number of SGLD steps to take (Default: 1000)
-        sgld_step_size: float
-            Step size for SGLD updates (Default: 0.01)
-        sgld_noise_scale: float
-            Noise scale for SGLD updates (Default: 0.01)
-        device: str
-            Device to use for computation (Default: "cpu"), options: 
-            cpu, cuda, ipu, xpu, mkldnn, opengl, opencl, ideep, hip, ve, fpga, maia, xla, lazy, vulkan, mps, meta, hpu, mtia
-        
+        Args:
+            n_sgld_steps: int
+                Number of SGLD steps to take (Default: 1000)
+            sgld_step_size: float
+                Step size for SGLD updates (Default: 0.01)
+            sgld_noise_scale: float
+                Noise scale for SGLD updates (Default: 0.01)
+            device: str, torch.device
+                Device to use for computation (Default: "auto"), If `"auto"`, the device is `"cuda"` if available, otherwise `"cpu"`.
         """
         self.n_sgld_steps = n_sgld_steps
         self.sgld_step_size = sgld_step_size
         self.sgld_noise_scale = sgld_noise_scale
-        self.device = device
-        self.tabpfn = TabPFNClassifier(device=device)
         self.scaler = StandardScaler()
+        self.device = self._infer_device(device)
+        self.tabpfn = TabPFNClassifier(device=self.device)
+
+
+    def _infer_device(self, device: str | torch.device | None) -> torch.device:
+        """
+        Infer the device and data type from the given device string.
+
+        Args:
+            device: The device to infer the type from.
+
+        Returns:
+            The inferred device
+        """
+        if (device is None) or (isinstance(device, str) and device == "auto"):
+            device_type_ = "cuda" if torch.cuda.is_available() else "cpu"
+            return torch.device(device_type_)
+        if isinstance(device, str):
+            return torch.device(device)
+        if isinstance(device, torch.device):
+            return device
+        raise ValueError(f"Invalid device: {device}")
+        
 
     def _compute_energy(
         self,
@@ -109,17 +127,18 @@ class TabPFGen:
         """
         Generate synthetic samples for classification.
 
-        Parameters
-        ----------
-        X_train: np.ndarray
-            Input features for training, shape (n_samples, n_features)
-        y_train: np.ndarray
-            Target labels for training, shape (n_samples,)
-        n_samples: int
-            Number of synthetic samples to generate
-        balance_classes: bool
-            Whether to balance classes in synthetic data (Default: True)
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target labels for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            balance_classes: bool
+                Whether to balance classes in synthetic data (Default: True)
         
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and labels  
         """t
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
@@ -184,22 +203,22 @@ class TabPFGen:
         """
         Generate synthetic samples for regression.
 
-        Parameters
-        ----------
-        X_train: np.ndarray
-            Input features for training, shape (n_samples, n_features)
-        y_train: np.ndarray
-            Target values for training, shape (n_samples,)
-        n_samples: int
-            Number of synthetic samples to generate
-        use_quantiles: bool
-            Whether to use quantile regression for synthetic data (Default: True)
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target values for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            use_quantiles: bool
+                Whether to use quantile regression for synthetic data (Default: True)
+        
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and target values
         """
         
         # Initialize regressor with appropriate preprocessing
-        regressor = TabPFNRegressor(
-            device=self.device
-        )
+        regressor = TabPFNRegressor(device=self.device)
         
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
