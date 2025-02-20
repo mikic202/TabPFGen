@@ -15,6 +15,22 @@ class TabPFGen:
         sgld_noise_scale: float = 0.01,
         device: str = "cpu"
     ):
+        """
+        Initialize TabPFGen with SGLD parameters.
+
+        Parameters
+        ----------
+        n_sgld_steps: int
+            Number of SGLD steps to take (Default: 1000)
+        sgld_step_size: float
+            Step size for SGLD updates (Default: 0.01)
+        sgld_noise_scale: float
+            Noise scale for SGLD updates (Default: 0.01)
+        device: str
+            Device to use for computation (Default: "cpu"), options: 
+            cpu, cuda, ipu, xpu, mkldnn, opengl, opencl, ideep, hip, ve, fpga, maia, xla, lazy, vulkan, mps, meta, hpu, mtia
+        
+        """
         self.n_sgld_steps = n_sgld_steps
         self.sgld_step_size = sgld_step_size
         self.sgld_noise_scale = sgld_noise_scale
@@ -91,8 +107,20 @@ class TabPFGen:
         balance_classes: bool = True
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Generate synthetic samples
-        """
+        Generate synthetic samples for classification.
+
+        Parameters
+        ----------
+        X_train: np.ndarray
+            Input features for training, shape (n_samples, n_features)
+        y_train: np.ndarray
+            Target labels for training, shape (n_samples,)
+        n_samples: int
+            Number of synthetic samples to generate
+        balance_classes: bool
+            Whether to balance classes in synthetic data (Default: True)
+        
+        """t
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
         
@@ -154,7 +182,18 @@ class TabPFGen:
         use_quantiles: bool = True
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Generate synthetic samples for regression using TabPFNRegressor
+        Generate synthetic samples for regression.
+
+        Parameters
+        ----------
+        X_train: np.ndarray
+            Input features for training, shape (n_samples, n_features)
+        y_train: np.ndarray
+            Target values for training, shape (n_samples,)
+        n_samples: int
+            Number of synthetic samples to generate
+        use_quantiles: bool
+            Whether to use quantile regression for synthetic data (Default: True)
         """
         
         # Initialize regressor with appropriate preprocessing
