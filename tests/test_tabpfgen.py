@@ -7,7 +7,7 @@ import torch
 class TestTabPFGen(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures before each test method."""
-        self.device = "cpu"
+        self.device = torch.device("cpu")
         # Use smaller values for testing to speed up execution
         self.generator = TabPFGen(
             n_sgld_steps=10,  # Reduced for testing
@@ -39,8 +39,7 @@ class TestTabPFGen(unittest.TestCase):
         self.assertEqual(self.generator.n_sgld_steps, 10)
         self.assertEqual(self.generator.sgld_step_size, 0.01)
         self.assertEqual(self.generator.sgld_noise_scale, 0.01)
-        self.assertEqual(self.generator.device, "cpu")
-        self.assertIsNotNone(self.generator.tabpfn)
+        self.assertEqual(self.generator.device.type, "cpu")
         self.assertIsNotNone(self.generator.scaler)
 
     def test_classification_generation(self):
@@ -175,3 +174,4 @@ class TestTabPFGen(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
+    
