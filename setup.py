@@ -12,7 +12,7 @@ def read_requirements(filepath):
 
 setup(
     name="TabPFGen",
-    version="0.1.1",
+    version="0.1.2",
     description="Synthetic tabular data generation using energy-based modeling and TabPFN",
     long_description=(HERE / "README.md").read_text(),
     long_description_content_type="text/markdown",

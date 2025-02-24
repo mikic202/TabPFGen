@@ -4,7 +4,7 @@ from .visuals import (
     visualize_regression_results
 )
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 __all__ = [
     "TabPFGen",
     "visualize_classification_results",
