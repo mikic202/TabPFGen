@@ -1,5 +1,10 @@
 # TabPFGen: Synthetic Tabular Data Generation with TabPFN
 
+[![PyPI version](https://badge.fury.io/py/tabpfgen.svg)](https://badge.fury.io/py/tabpfgen)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+![TabPFGen Overview](docs/images/tabpfgen_featureimage.jpg)
+
 TabPFGen is a Python library for generating high-quality synthetic tabular data using energy-based modeling and stochastic gradient Langevin dynamics (SGLD). It supports both classification and regression tasks with built-in visualization capabilities.
 
 ## Motivation
@@ -127,6 +132,10 @@ The package includes comprehensive visualization tools:
 ### Tests
 
 python -m unittest tests/test_tabpfgen.py
+
+## Documentation
+
+For detailed documentation and tutorials, visit our [tutorial pages](https://github.com/sebhaan/TabPFGen/blob/main/tutorial/index.md).
 
 ## How It Works
 
