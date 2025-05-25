@@ -301,24 +301,25 @@ def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names
     plt.show()
 
 # Example usage
-if __name__ == "__main__":
-    from sklearn.datasets import load_diabetes
-    
-    # Load regression dataset
-    X, y = load_diabetes(return_X_y=True)
-    
-    # Initialize generator
-    generator = TabPFGenV2(n_sgld_steps=500)
-    
-    # Generate synthetic regression data
-    X_synth, y_synth = generator.generate_regression(
-        X, y,
-        n_samples=100,
-        use_quantiles=True
-    )
-    
-    # Visualize results
-    visualize_regression_results(
-        X, y, X_synth, y_synth,
-        feature_names=load_diabetes().feature_names
-    )
+"""
+from sklearn.datasets import load_diabetes
+
+# Load regression dataset
+X, y = load_diabetes(return_X_y=True)
+
+# Initialize generator
+generator = TabPFGenV2(n_sgld_steps=500)
+
+# Generate synthetic regression data
+X_synth, y_synth = generator.generate_regression(
+    X, y,
+    n_samples=100,
+    use_quantiles=True
+)
+
+# Visualize results
+visualize_regression_results(
+    X, y, X_synth, y_synth,
+    feature_names=load_diabetes().feature_names
+)
+"""
