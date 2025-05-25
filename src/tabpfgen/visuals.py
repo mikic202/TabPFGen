@@ -8,7 +8,7 @@ from scipy.stats import probplot
 
 def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_names=None):
     """
-    Comprehensive visualization of original vs synthetic classification data
+    Visualization of original vs synthetic classification data
     
     Args:
         X_orig: Original features
@@ -18,7 +18,7 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
         feature_names: Optional list of feature names
     """
     # Create figure with subplots
-    fig = plt.figure(figsize=(20, 15))
+    fig = plt.figure(figsize=(15, 10))
     
     # 1. Class Distribution Comparison
     plt.subplot(2, 2, 1)
@@ -39,7 +39,7 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
            label='Synthetic', 
            alpha=0.6,
            color='red')
-    plt.title('Class Distribution Comparison', fontsize=12, pad=20)
+    plt.title('Class Distribution Comparison', fontsize=10, pad=16)
     plt.xlabel('Class')
     plt.ylabel('Count')
     plt.legend()
@@ -73,7 +73,7 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
         plt.scatter(X_tsne_synth[mask_synth, 0], X_tsne_synth[mask_synth, 1], 
                    alpha=0.6, marker='x', label=f'Synthetic Class {c}')
     
-    plt.title('t-SNE Visualization', fontsize=12, pad=20)
+    plt.title('t-SNE Visualization', fontsize=10, pad=16)
     plt.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.grid(True, alpha=0.3)
     
@@ -94,7 +94,7 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
     # Plot feature importance
     colors = plt.cm.viridis(np.linspace(0, 1, 5))
     plt.bar(range(5), importance[top_features_idx], color=colors)
-    plt.title('Top 5 Important Features', fontsize=12, pad=20)
+    plt.title('Top 5 Important Features', fontsize=10, pad=16)
     plt.xticks(range(5), [feature_names[i] for i in top_features_idx], rotation=45)
     plt.grid(True, alpha=0.3)
     
@@ -117,7 +117,7 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
                 color=plt.cm.Set3(i + len(classes)), density=True)
     
     plt.title(f'Distribution of Top Feature:\n{feature_names[top_feature_idx]}', 
-              fontsize=12, pad=20)
+              fontsize=10, pad=16)
     plt.legend()
     plt.grid(True, alpha=0.3)
     
@@ -144,34 +144,10 @@ def visualize_classification_results(X_orig, y_orig, X_synth, y_synth, feature_n
     plt.tight_layout()
     plt.show()
 
-# Example usage
-if __name__ == "__main__":
-    from sklearn.datasets import load_breast_cancer
-    
-    # Load data
-    X, y = load_breast_cancer(return_X_y=True)
-    
-    # Initialize generator
-    generator = TabPFGenV2(n_sgld_steps=500)
-    
-    # Generate synthetic data
-    X_synth, y_synth = generator.generate_classification(
-        X, y,
-        n_samples=100,
-        balance_classes=True
-    )
-    
-    # Visualize results
-    visualize_classification_results(
-        X, y, X_synth, y_synth,
-        feature_names=load_breast_cancer().feature_names
-    )
-
-
 
 def visualize_regression_results(X_orig, y_orig, X_synth, y_synth, feature_names=None):
     """
-    Comprehensive visualization of original vs synthetic regression data
+    Visualization of original vs synthetic regression data
     
     Args:
         X_orig: Original features
