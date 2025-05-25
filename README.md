@@ -20,6 +20,7 @@ What makes TabPFGen interesting is that it's built on the TabPFN transformer arc
 
 - Energy-based synthetic data generation
 - Support for both classification and regression tasks
+- Automatic dataset balancing for imbalanced classes
 - Class-balanced sampling option
 - Comprehensive visualization tools
 - Built on TabPFN transformer architecture
@@ -59,6 +60,41 @@ visualize_classification_results(
     feature_names=load_breast_cancer().feature_names
 )
 ```
+
+### Dataset Balancing Example
+
+```python
+from tabpfgen import TabPFGen
+from sklearn.datasets import make_classification
+from tabpfgen.visuals import visualize_classification_results
+
+# Create imbalanced dataset
+X, y = make_classification(n_samples=1000, n_classes=3, 
+                         n_informative=3, n_redundant=1,
+                         weights=[0.7, 0.2, 0.1], random_state=42)
+
+# Initialize generator
+generator = TabPFGen(n_sgld_steps=500)
+
+# Balance dataset automatically (balances to majority class size)
+X_synth, y_synth, X_combined, y_combined = generator.balance_dataset(X, y)
+
+# Or specify custom target per class:
+X_synth, y_synth, X_combined, y_combined = generator.balance_dataset(
+    X, y, target_per_class=1000
+)
+
+print(f"Original dataset: {len(X)} samples")
+print(f"Synthetic samples: {len(X_synthetic)} samples") 
+print(f"Combined dataset: {len(X_combined)} samples")
+
+visualize_classification_results(
+    X, y, X_synth, y_synth,
+    feature_names=[f'feature_{i}' for i in range(X.shape[1])]
+)
+```
+
+**Note on Balancing Results**: The final class distribution may be approximately balanced rather than perfectly balanced. This is due to TabPFN's label refinement process, which prioritizes data quality and realism over exact class counts. The method ensures significant improvement in class balance while maintaining high-quality synthetic samples.
 
 ### Regression Example
 
@@ -120,6 +156,10 @@ The package includes comprehensive visualization tools:
 - `n_samples`: Number of synthetic samples to generate
 - `balance_classes`: Whether to generate balanced class distributions (default: True)
 
+### Dataset Balancing
+- `target_per_class`: Target number of samples per class (default: None, uses majority class size)  
+- `min_class_size`: Minimum class size to include in balancing (default: 5)
+
 ### Regression Generation
 - `n_samples`: Number of synthetic samples to generate
 - `use_quantiles`: Whether to use quantile-based sampling (default: True)
@@ -150,6 +190,7 @@ python -m unittest tests/test_tabpfgen.py
 - Memory usage scales with dataset size
 - SGLD convergence can be sensitive to step size parameters
 - Computation time increases with `n_sgld_steps`
+- Dataset balancing produces approximate rather than perfect balance due to TabPFN's quality-focused label refinement process
 
 
 ## References
