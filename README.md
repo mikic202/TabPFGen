@@ -32,6 +32,11 @@ What makes TabPFGen interesting is that it's built on the TabPFN transformer arc
 pip install tabpfgen
 ```
 
+Verify installation
+```bash
+python -c 'from tabpfgen import TabPFGen; print("Installation successful!")'
+```
+
 ## Quick Start
 
 ### Classification Example
@@ -65,8 +70,8 @@ visualize_classification_results(
 
 ```python
 from tabpfgen import TabPFGen
-from sklearn.datasets import make_classification
 from tabpfgen.visuals import visualize_classification_results
+from sklearn.datasets import make_classification
 
 # Create imbalanced dataset
 X, y = make_classification(n_samples=1000, n_classes=3, 
@@ -85,7 +90,7 @@ X_synth, y_synth, X_combined, y_combined = generator.balance_dataset(
 )
 
 print(f"Original dataset: {len(X)} samples")
-print(f"Synthetic samples: {len(X_synthetic)} samples") 
+print(f"Synthetic samples: {len(X_synth)} samples") 
 print(f"Combined dataset: {len(X_combined)} samples")
 
 visualize_classification_results(
@@ -166,7 +171,9 @@ The package includes comprehensive visualization tools:
 
 ### Tests
 
+```bash
 python -m unittest tests/test_tabpfgen.py
+```
 
 ## How It Works
 
