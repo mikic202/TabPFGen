@@ -116,6 +116,212 @@ class TabPFGen:
         
         return x_synth_new
 
+    def _generate_samples_for_class(
+        self,
+        class_label: int,
+        n_samples: int,
+        x_train_scaled: torch.Tensor,
+        y_train: torch.Tensor,
+        X_train_scaled: np.ndarray
+    ) -> torch.Tensor:
+        """
+        Generate synthetic samples for a specific class using SGLD.
+        
+        Args:
+            class_label: The class to generate samples for
+            n_samples: Number of samples to generate
+            x_train_scaled: Scaled training features as tensor
+            y_train: Training labels as tensor
+            X_train_scaled: Scaled training features as numpy array
+            
+        Returns:
+            Generated samples as tensor
+        """
+        # Get indices for this class
+        class_indices = torch.where(y_train == class_label)[0]
+        
+        # Initialize synthetic samples near existing class samples
+        sample_indices = torch.randint(0, len(class_indices), (n_samples,))
+        selected_indices = class_indices[sample_indices]
+        x_synth = x_train_scaled[selected_indices] + torch.randn(n_samples, X_train_scaled.shape[1], device=self.device) * 0.01
+        y_synth = torch.full((n_samples,), class_label, device=self.device)
+        
+        # SGLD iterations
+        for step in range(self.n_sgld_steps):
+            x_synth = self._sgld_step(x_synth, y_synth, x_train_scaled, y_train)
+            
+            if step % 200 == 0:
+                print(f"  Class {class_label}: Step {step}/{self.n_sgld_steps}")
+                
+        return x_synth
+
+    def balance_dataset(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        target_per_class: Optional[int] = None,
+        min_class_size: int = 5
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """
+        Balance dataset by generating synthetic samples for underrepresented classes.
+
+        Note:
+            The final class distribution may be approximately balanced rather than 
+            perfectly balanced due to TabPFN's label refinement process, which 
+            prioritizes data quality over exact class counts. Classes smaller than 
+            min_class_size are excluded from synthetic generation but remain in 
+            the combined dataset.
+
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target labels for training, shape (n_samples,)
+            target_per_class: Optional[int]
+                Target number of samples per class. If None, uses majority class size.
+            min_class_size: int
+                Minimum class size to include in balancing (Default: 5)
+        
+        Returns:
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: 
+                X_synthetic, y_synthetic, X_combined, y_combined
+        """
+        
+        # Input validation
+        if len(X_train) != len(y_train):
+            raise ValueError("X_train and y_train must have the same number of samples")
+        
+        # Get class distribution
+        unique_classes, class_counts = np.unique(y_train, return_counts=True)
+        class_distribution = dict(zip(unique_classes, class_counts))
+        max_class_size = max(class_counts)
+        
+        # Determine target size per class
+        if target_per_class is None:
+            target_size = max_class_size
+        else:
+            if target_per_class < max_class_size:
+                raise ValueError(f"target_per_class ({target_per_class}) must be >= largest class size ({max_class_size})")
+            target_size = target_per_class
+        
+        # Display validation statistics
+        print("=== Dataset Balancing Statistics ===")
+        print(f"Original class distribution:")
+        for cls, count in class_distribution.items():
+            print(f"  Class {cls}: {count} samples")
+        print(f"Target samples per class: {target_size}")
+        print(f"Minimum class size threshold: {min_class_size}")
+        
+        # Filter classes and determine synthetic samples needed
+        valid_classes = []
+        skipped_classes = []
+        synthetic_needed = {}
+        
+        for cls, count in class_distribution.items():
+            if count < min_class_size:
+                skipped_classes.append((cls, count))
+                print(f"Warning: Skipping class {cls} (only {count} samples, below threshold {min_class_size})")
+            else:
+                valid_classes.append(cls)
+                samples_to_generate = max(0, target_size - count)
+                synthetic_needed[cls] = samples_to_generate
+        
+        if not valid_classes:
+            raise ValueError("No classes meet the minimum size requirement")
+        
+        print(f"\nSynthetic samples to generate:")
+        total_synthetic = 0
+        for cls in valid_classes:
+            count = synthetic_needed[cls]
+            total_synthetic += count
+            if count > 0:
+                print(f"  Class {cls}: {count} synthetic samples")
+            else:
+                print(f"  Class {cls}: 0 synthetic samples (already at target)")
+        
+        if total_synthetic == 0:
+            print("No synthetic samples needed - dataset is already balanced!")
+            return np.array([]).reshape(0, X_train.shape[1]), np.array([]), X_train.copy(), y_train.copy()
+        
+        # Scale the input data
+        X_scaled = self.scaler.fit_transform(X_train)
+        
+        # Convert to tensors
+        x_train = torch.tensor(X_scaled, device=self.device, dtype=torch.float32)
+        y_train_tensor = torch.tensor(y_train, device=self.device)
+        
+        # Generate synthetic samples for each class that needs them
+        print(f"\nGenerating {total_synthetic} synthetic samples...")
+        x_synthetic_list = []
+        y_synthetic_list = []
+        
+        for cls in valid_classes:
+            n_needed = synthetic_needed[cls]
+            if n_needed > 0:
+                print(f"\nGenerating {n_needed} samples for class {cls}...")
+                x_synth_class = self._generate_samples_for_class(
+                    cls, n_needed, x_train, y_train_tensor, X_scaled
+                )
+                y_synth_class = torch.full((n_needed,), cls, device=self.device)
+                
+                x_synthetic_list.append(x_synth_class)
+                y_synthetic_list.append(y_synth_class)
+        
+        # Combine synthetic samples
+        if x_synthetic_list:
+            x_synthetic_combined = torch.cat(x_synthetic_list, dim=0)
+            y_synthetic_combined = torch.cat(y_synthetic_list, dim=0)
+            
+            # Refine labels using TabPFN predictions
+            print("Refining synthetic sample labels with TabPFN...")
+            x_synthetic_np = x_synthetic_combined.detach().cpu().numpy()
+            
+            # Fit TabPFN classifier on valid classes only
+            valid_mask = np.isin(y_train, valid_classes)
+            X_train_valid = X_scaled[valid_mask]
+            y_train_valid = y_train[valid_mask]
+            
+            clf = TabPFNClassifier(device=self.device)
+            clf.fit(X_train_valid, y_train_valid)
+            probs = clf.predict_proba(x_synthetic_np)
+            y_synthetic_refined = torch.tensor(probs.argmax(axis=1), device=self.device)
+            
+            # Convert back to numpy and inverse transform
+            X_synthetic = self.scaler.inverse_transform(x_synthetic_np)
+            y_synthetic = y_synthetic_refined.cpu().numpy()
+            
+            # Map refined labels back to original class labels
+            unique_valid_classes = np.unique(y_train_valid)
+            y_synthetic_mapped = unique_valid_classes[y_synthetic]
+            
+        else:
+            X_synthetic = np.array([]).reshape(0, X_train.shape[1])
+            y_synthetic_mapped = np.array([])
+        
+        # Combine original and synthetic data
+        X_combined = np.vstack([X_train, X_synthetic]) if len(X_synthetic) > 0 else X_train.copy()
+        y_combined = np.concatenate([y_train, y_synthetic_mapped]) if len(y_synthetic_mapped) > 0 else y_train.copy()
+        
+        # Display final statistics
+        print(f"\n=== Final Statistics ===")
+        final_unique, final_counts = np.unique(y_combined, return_counts=True)
+        final_distribution = dict(zip(final_unique, final_counts))
+        
+        print("Final combined class distribution:")
+        for cls in sorted(final_distribution.keys()):
+            count = final_distribution[cls]
+            original_count = class_distribution.get(cls, 0)
+            synthetic_count = count - original_count
+            print(f"  Class {cls}: {count} total ({original_count} original + {synthetic_count} synthetic)")
+        
+        if skipped_classes:
+            print(f"\nSkipped classes: {[cls for cls, _ in skipped_classes]}")
+        
+        print("Dataset balancing completed!\n")
+        print("Note: The results represent an approximate balance that preserves data quality.\n")
+        
+        return X_synthetic, y_synthetic_mapped, X_combined, y_combined
+
     def generate_classification(
         self,
         X_train: np.ndarray,
