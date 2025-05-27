@@ -12,7 +12,7 @@ def read_requirements(filepath):
 
 setup(
     name="TabPFGen",
-    version="0.1.3",
+    version="0.1.4",
     description="Synthetic tabular data generation using energy-based modeling and TabPFN",
     long_description=(HERE / "README.md").read_text(),
     long_description_content_type="text/markdown",
@@ -24,10 +24,9 @@ setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.11",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
     ],
     include_package_data=True,
-    python_requires=">=3.11",
+    python_requires=">=3.10",
 )
