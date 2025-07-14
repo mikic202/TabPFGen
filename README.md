@@ -211,6 +211,9 @@ For detailed documentation and tutorials, visit our [tutorial pages](https://git
 
 ## References
 
+This project is inspired by the TabPFGen method described in Ma, Junwei, et al. This is an independent implementation and may not strictly follow all aspects 
+of the original approach. We are not affiliated with the original authors.
+
 Ma, Junwei, et al. "TabPFGen--Tabular Data Generation with TabPFN." arXiv preprint arXiv:2406.05216 (2024).
 
 Hollmann, Noah, et al. "Accurate predictions on small data with a tabular foundation model." Nature 637.8045 (2025): 319-326.
