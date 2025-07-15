@@ -555,7 +555,7 @@ class TabPFGen:
 
 
 class TabPFGenClassifier(TabPFGen):
-    def generate(
+    def __call__(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
@@ -584,7 +584,7 @@ class TabPFGenClassifier(TabPFGen):
 
 
 class TabPFGenRegressor(TabPFGen):
-    def generate(
+    def __call__(
         self,
         X_train: np.ndarray,
         y_train: np.ndarray,
