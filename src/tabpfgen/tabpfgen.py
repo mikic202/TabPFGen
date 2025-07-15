@@ -373,12 +373,12 @@ class TabPFGen:
         X_scaled = self.scaler.fit_transform(X_train)
 
         # Convert to tensors
+        classes = np.unique(y_train)
         x_train = torch.tensor(X_scaled, device=self.device, dtype=torch.float32)
         y_train = torch.tensor(y_train, device=self.device)
 
         # Initialize synthetic data
         if balance_classes:
-            classes = np.unique(y_train.cpu().numpy())
             n_per_class = n_samples // len(classes)
             x_synth_list = []
             y_synth_list = []
@@ -402,9 +402,7 @@ class TabPFGen:
             x_synth = (
                 torch.randn(n_samples, X_train.shape[1], device=self.device) * 0.01
             )
-            y_synth = torch.randint(
-                0, len(np.unique(y_train)), (n_samples,), device=self.device
-            )
+            y_synth = torch.randint(0, len(classes), (n_samples,), device=self.device)
 
         # SGLD iterations
         for step in range(self.n_sgld_steps):
@@ -419,7 +417,7 @@ class TabPFGen:
         y_train_np = y_train.cpu().numpy()
 
         # Fit TabPFN classifier
-        clf = TabPFNClassifier(device=self.device)
+        clf = TabPFNClassifier(device=str(self.device))
         clf.fit(x_train_np, y_train_np)
         probs = clf.predict_proba(x_synth_np)
 
@@ -457,7 +455,7 @@ class TabPFGen:
         """
 
         # Initialize regressor with appropriate preprocessing
-        regressor = TabPFNRegressor(device=self.device)
+        regressor = TabPFNRegressor(device=str(self.device))
 
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
@@ -552,3 +550,59 @@ class TabPFGen:
         y_synth = y_synth * y_std + y_mean
 
         return X_synth, y_synth
+
+
+class TabPFGenClassifier(TabPFGen):
+    def __call__(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        n_samples: int,
+        balance_classes: bool = True,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate synthetic samples for classification.
+
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target labels for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            balance_classes: bool
+                Whether to balance classes in synthetic data (Default: True)
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and labels
+        """
+        return self.generate_classification(
+            X_train, y_train, n_samples, balance_classes
+        )
+
+
+class TabPFGenRegressor(TabPFGen):
+    def __call__(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        n_samples: int,
+        use_quantiles: bool = True,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate synthetic samples for regression.
+
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target values for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            use_quantiles: bool
+                Whether to use quantile regression for synthetic data (Default: True)
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and target values
+        """
+        return self.generate_regression(X_train, y_train, n_samples, use_quantiles)
