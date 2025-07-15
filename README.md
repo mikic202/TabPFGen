@@ -7,6 +7,8 @@
 
 TabPFGen is a Python library for generating high-quality synthetic tabular data using energy-based modeling and stochastic gradient Langevin dynamics (SGLD). It supports both classification and regression tasks with built-in visualization capabilities.
 
+*Integration with TabPFN Extensions: TabPFGen is being integrated into the tabpfn-extensions ecosystem as a separate module ([TabPFGen Data Synthesizer Extension](https://github.com/sebhaan/tabpfn-extensions/tree/tabpfgen-datasynthesizer/src/tabpfn_extensions/tabpfgen_datasynthesizer), [PR #83](https://github.com/PriorLabs/tabpfn-extensions/pull/83)), which will enable seamless integration with other TabPFN tools and extensions.*
+
 ## Motivation
 
 While there are many tools available for generating synthetic images or text, creating realistic tabular data that preserves the statistical properties and relationships of the original dataset has been more challenging.
