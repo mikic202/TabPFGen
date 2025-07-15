@@ -552,3 +552,59 @@ class TabPFGen:
         y_synth = y_synth * y_std + y_mean
 
         return X_synth, y_synth
+
+
+class TabPFGenClassifier(TabPFGen):
+    def generate(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        n_samples: int,
+        balance_classes: bool = True,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate synthetic samples for classification.
+
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target labels for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            balance_classes: bool
+                Whether to balance classes in synthetic data (Default: True)
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and labels
+        """
+        return self.generate_classification(
+            X_train, y_train, n_samples, balance_classes
+        )
+
+
+class TabPFGenRegressor(TabPFGen):
+    def generate(
+        self,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        n_samples: int,
+        use_quantiles: bool = True,
+    ) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Generate synthetic samples for regression.
+
+        Args:
+            X_train: np.ndarray
+                Input features for training, shape (n_samples, n_features)
+            y_train: np.ndarray
+                Target values for training, shape (n_samples,)
+            n_samples: int
+                Number of synthetic samples to generate
+            use_quantiles: bool
+                Whether to use quantile regression for synthetic data (Default: True)
+
+        Returns:
+            Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and target values
+        """
+        return self.generate_regression(X_train, y_train, n_samples, use_quantiles)
