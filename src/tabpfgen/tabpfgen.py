@@ -17,6 +17,7 @@ class TabPFGen:
         sgld_step_size: float = 0.01,
         sgld_noise_scale: float = 0.01,
         device: str = "auto",
+        verbose: bool = False,
     ):
         """
         Initialize TabPFGen with SGLD parameters.
@@ -36,6 +37,7 @@ class TabPFGen:
         self.sgld_noise_scale = sgld_noise_scale
         self.scaler = StandardScaler()
         self.device = self._infer_device(device)
+        self.verbose = verbose
 
     def _infer_device(self, device: str | torch.device | None) -> torch.device:
         """
@@ -154,7 +156,7 @@ class TabPFGen:
         for step in range(self.n_sgld_steps):
             x_synth = self._sgld_step(x_synth, y_synth, x_train_scaled, y_train)
 
-            if step % 200 == 0:
+            if self.verbose and step % 200 == 0:
                 print(f"  Class {class_label}: Step {step}/{self.n_sgld_steps}")
 
         return x_synth
@@ -408,7 +410,7 @@ class TabPFGen:
         for step in range(self.n_sgld_steps):
             x_synth = self._sgld_step(x_synth, y_synth, x_train, y_train)
 
-            if step % 100 == 0:
+            if self.verbose and step % 100 == 0:
                 print(f"Step {step}/{self.n_sgld_steps}")
 
         # Generate final samples using TabPFN
@@ -506,7 +508,7 @@ class TabPFGen:
                 torch.zeros_like(torch.tensor(y_scaled, device=self.device)),
             )
 
-            if step % 100 == 0:
+            if self.verbose and step % 100 == 0:
                 print(f"Step {step}/{self.n_sgld_steps}")
 
         # Generate regression values using TabPFNRegressor
