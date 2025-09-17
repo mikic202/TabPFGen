@@ -1,8 +1,9 @@
 import numpy as np
 import torch
 from tabpfn import TabPFNClassifier, TabPFNRegressor
+from tabicl import TabICLClassifier
 from sklearn.preprocessing import StandardScaler
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Type
 import warnings
 
 warnings.filterwarnings(
@@ -18,6 +19,8 @@ class TabPFGen:
         sgld_noise_scale: float = 0.01,
         device: str = "auto",
         verbose: bool = False,
+        clasifier_class: Type[TabICLClassifier | TabPFNClassifier] = TabPFNClassifier,
+        regressor_class: Type[TabPFNRegressor] = TabPFNRegressor,
     ):
         """
         Initialize TabPFGen with SGLD parameters.
@@ -38,6 +41,8 @@ class TabPFGen:
         self.scaler = StandardScaler()
         self.device = self._infer_device(device)
         self.verbose = verbose
+        self._clasifier_class = clasifier_class
+        self._regressor_class = regressor_class
 
     def _infer_device(self, device: str | torch.device | None) -> torch.device:
         """
@@ -295,7 +300,7 @@ class TabPFGen:
             X_train_valid = X_scaled[valid_mask]
             y_train_valid = y_train[valid_mask]
 
-            clf = TabPFNClassifier(device=self.device)
+            clf = self._clasifier_class(device=self.device)
             clf.fit(X_train_valid, y_train_valid)
             probs = clf.predict_proba(x_synthetic_np)
             y_synthetic_refined = torch.tensor(probs.argmax(axis=1), device=self.device)
@@ -419,7 +424,7 @@ class TabPFGen:
         y_train_np = y_train.cpu().numpy()
 
         # Fit TabPFN classifier
-        clf = TabPFNClassifier(device=str(self.device))
+        clf = self._clasifier_class(device=str(self.device))
         clf.fit(x_train_np, y_train_np)
         probs = clf.predict_proba(x_synth_np)
 
@@ -457,7 +462,7 @@ class TabPFGen:
         """
 
         # Initialize regressor with appropriate preprocessing
-        regressor = TabPFNRegressor(device=str(self.device))
+        regressor = self._regressor_class(device=str(self.device))
 
         # Scale the input data
         X_scaled = self.scaler.fit_transform(X_train)
