@@ -595,6 +595,7 @@ class TabPFGenRegressor(TabPFGen):
         y_train: np.ndarray,
         n_samples: int,
         use_quantiles: bool = True,
+        balance_classes: bool = False,
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Generate synthetic samples for regression.
