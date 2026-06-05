@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from tabpfn import TabPFNClassifier, TabPFNRegressor
-from tabicl import TabICLClassifier
+from tabicl import TabICLClassifier, TabICLRegressor
 from sklearn.preprocessing import StandardScaler
 from typing import Tuple, Optional, Type
 import warnings
@@ -20,7 +20,7 @@ class TabPFGen:
         device: str = "auto",
         verbose: bool = False,
         clasifier_class: Type[TabICLClassifier | TabPFNClassifier] = TabPFNClassifier,
-        regressor_class: Type[TabPFNRegressor] = TabPFNRegressor,
+        regressor_class: Type[TabPFNRegressor | TabICLRegressor] = TabPFNRegressor,
     ):
         """
         Initialize TabPFGen with SGLD parameters.
