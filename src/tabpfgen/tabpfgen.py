@@ -524,25 +524,25 @@ class TabPFGen:
 
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                predictions = regressor.predict(x_synth_np, output_type="full")
+                y_synth = regressor.predict(x_synth_np, output_type="median")
 
-            if use_quantiles:
-                quantiles = predictions["quantiles"]
-                if not isinstance(quantiles, list):
-                    quantiles = [quantiles]
+            # if use_quantiles:
+            #     quantiles = predictions["quantiles"]
+            #     if not isinstance(quantiles, list):
+            #         quantiles = [quantiles]
 
-                # Sample different quantiles for different ranges
-                n_quantiles = len(quantiles)
-                # Use more extreme quantiles for tails
-                probs = np.abs(np.random.normal(0, 0.5, size=len(x_synth_np)))
-                quantile_idx = (
-                    (probs * n_quantiles).astype(int).clip(0, n_quantiles - 1)
-                )
-                y_synth = np.array(
-                    [quantiles[i][j] for j, i in enumerate(quantile_idx)]
-                )
-            else:
-                y_synth = np.array(predictions["median"])
+            #     # Sample different quantiles for different ranges
+            #     n_quantiles = len(quantiles)
+            #     # Use more extreme quantiles for tails
+            #     probs = np.abs(np.random.normal(0, 0.5, size=len(x_synth_np)))
+            #     quantile_idx = (
+            #         (probs * n_quantiles).astype(int).clip(0, n_quantiles - 1)
+            #     )
+            #     y_synth = np.array(
+            #         [quantiles[i][j] for j, i in enumerate(quantile_idx)]
+            #     )
+            # else:
+            #     y_synth = np.array(predictions["median"])
 
             # Add small noise to prevent exact duplicates
             y_synth += np.random.normal(0, 0.01, size=len(y_synth))
