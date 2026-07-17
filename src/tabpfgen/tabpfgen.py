@@ -3,7 +3,8 @@ import torch
 from tabpfn import TabPFNClassifier, TabPFNRegressor
 from tabicl import TabICLClassifier, TabICLRegressor
 from sklearn.preprocessing import StandardScaler
-from typing import Tuple, Optional, Type
+from typing import Tuple, Optional, Type, Callable
+import pandas as pd
 import warnings
 
 warnings.filterwarnings(
@@ -21,6 +22,7 @@ class TabPFGen:
         verbose: bool = False,
         clasifier_class: Type[TabICLClassifier | TabPFNClassifier] = TabPFNClassifier,
         regressor_class: Type[TabPFNRegressor | TabICLRegressor] = TabPFNRegressor,
+        column_order_getter: Callable[[pd.DataFrame, bool], list[str]] | None = None
     ):
         """
         Initialize TabPFGen with SGLD parameters.
@@ -43,6 +45,7 @@ class TabPFGen:
         self.verbose = verbose
         self._clasifier_class = clasifier_class
         self._regressor_class = regressor_class
+        self._column_order_getter = column_order_getter
 
     def _infer_device(self, device: str | torch.device | None) -> torch.device:
         """
@@ -558,6 +561,16 @@ class TabPFGen:
 
         return X_synth, y_synth
 
+    def change_feature_order(self, X_train, y_train):
+        train_data = X_train.copy()
+        train_data.insert(0, "target", y_train)
+
+        if self._column_order_getter:
+            feature_order = self._column_order_getter(train_data)
+        else:
+            return X_train
+        return train_data[feature_order].drop(columns="target")
+
 
 class TabPFGenClassifier(TabPFGen):
     def __call__(
@@ -584,7 +597,7 @@ class TabPFGenClassifier(TabPFGen):
             Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and labels
         """
         return self.generate_classification(
-            X_train, y_train, n_samples, balance_classes
+            self.change_feature_order(X_train, y_train), y_train, n_samples, balance_classes
         )
 
 
@@ -613,4 +626,4 @@ class TabPFGenRegressor(TabPFGen):
         Returns:
             Tuple[np.ndarray, np.ndarray]: Tuple of synthetic features and target values
         """
-        return self.generate_regression(X_train, y_train, n_samples, use_quantiles)
+        return self.generate_regression(self.change_feature_order(X_train, y_train), y_train, n_samples, use_quantiles)
